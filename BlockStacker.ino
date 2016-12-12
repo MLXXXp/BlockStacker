@@ -3,20 +3,21 @@
 Copyright (C) 2015 David Martinez
 All rights reserved.
 
+Modified to use the Arduboy2 and ArduboyTones libraries
+December 2016, Scott Allen 
+
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
 version 2.1 of the License, or (at your option) any later version.
 */
 
-#include <SPI.h>
-#include "Arduboy.h"
+#include <Arduboy2.h>
+#include <ArduboyTones.h>
 #include "bitmaps.h"
-#include <EEPROM.h>
 
-
-Arduboy arduboy;
-#include "pins_arduino.h" // Arduino pre-1.0 needs this
+Arduboy2 arduboy;
+ArduboyTones sound(arduboy.audio.enabled);
 
 // Variables
 int score;
@@ -40,27 +41,8 @@ byte tickCount = 0;
 boolean buttonHeld = false;
 byte currentNumBlocks;
 
-
-
-void intro()
-{
-  for (int i = -8; i < 28; i = i + 2)
-  {
-    arduboy.clearDisplay();
-    arduboy.setCursor(46, i);
-    arduboy.print("ARDUBOY");
-    arduboy.display();
-  }
-
-  arduboy.tunes.tone(987, 160);
-  delay(160);
-  arduboy.tunes.tone(1318, 400);
-  delay(2000);
-}
-
-
 void logoSplash(){
-  arduboy.clearDisplay();
+  arduboy.clear();
   arduboy.drawBitmap(0,0,logo,128,64,WHITE);
   arduboy.display();
   delay (3000);
@@ -84,7 +66,7 @@ void clearGrid() {
   
   
   //drawbackground on buffer twice
-  arduboy.clearDisplay();
+  arduboy.clear();
   arduboy.fillRect(0,0,WIDTH,HEIGHT,WHITE);
   arduboy.drawBitmap(0,0,backImg,128,64,BLACK);
    arduboy.fillRect(gridxPos-1,gridyPos+3, unitSize * gridxSize + 2,unitSize * gridySize ,BLACK);
@@ -95,8 +77,11 @@ void clearGrid() {
 
 void setup()
 {
-  arduboy.start();
-  intro();
+  arduboy.begin();
+
+  sound.tone(987,160, 1318,400);
+  delay(1000);
+
   logoSplash();
   titleScreen();
   clearGrid();
@@ -111,7 +96,7 @@ void titleScreen(){
   bool exitTitle = false;
   
   while(!exitTitle){
- arduboy.clearDisplay();
+ arduboy.clear();
  arduboy.setCursor( 0,10);
  arduboy.setTextSize (2);
  arduboy.print("Box Stacker");
@@ -206,11 +191,8 @@ bool  checkGameover(){
         arduboy.display();
         
             delay(100);
-  arduboy.tunes.tone(400, 200);
-  delay(400);
-  arduboy.tunes.tone(200, 300);
-  delay(400);
-        delay(1000);
+        sound.tone(400,200, 0,200, 200,300);
+        delay(2000);
          clearGrid();
          return true;
          
@@ -220,7 +202,7 @@ bool  checkGameover(){
 }
 
 void checkLine(){
- arduboy.tunes.tone(987, 160);
+    sound.tone(987, 160);
   
   
     if(currentLine != gridySize -1){
